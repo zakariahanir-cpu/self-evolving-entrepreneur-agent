@@ -1,12 +1,13 @@
-import os
+import fs_interaction
 
-def generate_script(template_path, output_path, params):
-    try:
-        with open(template_path, 'r') as template_file:
-            template_content = template_file.read()
-            for key, value in params.items():
-                template_content = template_content.replace(f"{{{{ {key} }}}}", value)
-            with open(output_path, 'w') as output_file:
-                output_file.write(template_content)
-    except Exception as e:
-        print(f"Error: {e}")
+class ScriptGenerator:
+    def __init__(self, path):
+        self.path = path
+
+    def generate_script(self, content):
+        """Generate a new Python script."""
+        fs_interaction.write_file(self.path, content)
+
+    def modify_script(self, new_content):
+        """Modify an existing Python script."""
+        fs_interaction.modify_file(self.path, new_content)
