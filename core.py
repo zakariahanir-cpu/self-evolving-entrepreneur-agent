@@ -8,7 +8,7 @@ class SelfEvolvingAgent:
         self.client = Groq(api_key=api_key)
         self.memory_path = "memory/long_term_memory.json"
         self.skills_path = "skills/"
-        self.model = "llama3-70b-8192"
+        self.model = "llama-3.3-70b-versatile"
         self.memory = self.load_memory()
 
     def load_memory(self):
