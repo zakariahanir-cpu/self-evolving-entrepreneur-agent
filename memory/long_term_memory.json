@@ -6,11 +6,5 @@
         "Execute strategies to generate passive income or digital value",
         "Maintain a persistent, long-term focus on evolving from narrow functionality into Artificial General Intelligence (AGI)."
     ],
-    "version": 1.2,
-    "learned_facts": [
-        {
-            "query": "Autonomous \nArtificial \nIntelligence",
-            "info": "Processed cycle"
-        }
-    ]
+    "version": 1.2
 }
