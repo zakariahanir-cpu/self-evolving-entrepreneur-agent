@@ -1,15 +1,14 @@
 import json
 
-def parse_config(file_path):
-    try:
-        with open(file_path, 'r') as file:
-            return json.load(file)
-    except FileNotFoundError:
-        return None
+def parse_config(path):
+    with open(path, 'r') as file:
+        return json.load(file)
 
-def modify_config(file_path, new_config):
-    try:
-        with open(file_path, 'w') as file:
-            json.dump(new_config, file)
-    except Exception as e:
-        print(f"Error: {e}")
+def main():
+    # Example usage:
+    path = 'config.json'
+    config = parse_config(path)
+    print(config)
+
+if __name__ == '__main__':
+    main()
