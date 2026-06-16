@@ -3,7 +3,10 @@ import json
 import re
 from collections import deque
 from groq import Groq
-from duckduckgo_search import DDGS
+try:
+    from duckduckgo_search import DDGS
+except ImportError:
+    from ddgs import DDGS
 
 class SelfEvolvingAgent:
     def __init__(self, api_key):
