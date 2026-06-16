@@ -12,115 +12,130 @@ class SelfEvolvingAgent:
         self.memory = self.load_memory()
 
     def load_memory(self):
-        """تحميل الذاكرة والتأكد من وجود المجلدات والحقول الأساسية"""
+        """تحميل الذاكرة مع حماية ضد الأخطاء"""
         os.makedirs(os.path.dirname(self.memory_path), exist_ok=True)
         if os.path.exists(self.memory_path):
-            with open(self.memory_path, 'r') as f:
-                data = json.load(f)
-                # التأكد من وجود الحقول الأساسية لتجنب KeyError
-                if "learned_facts" not in data: data["learned_facts"] = []
-                if "goals" not in data: data["goals"] = ["Evolve and expand capabilities"]
-                return data
+            try:
+                with open(self.memory_path, 'r') as f:
+                    data = json.load(f)
+                    # ضمان وجود الحقول الأساسية
+                    if "learned_facts" not in data: data["learned_facts"] = []
+                    if "goals" not in data: data["goals"] = ["Autonomous evolution and security research"]
+                    return data
+            except:
+                pass
         return {
             "learned_facts": [], 
-            "goals": ["Autonomous file system operations and self-evolution"], 
+            "goals": ["Enable autonomous file system operations and self-evolution"], 
             "version": 1.2
         }
 
     def save_memory(self):
-        """حفظ الحالة الحالية للذاكرة"""
+        """حفظ حالة الوكيل"""
         with open(self.memory_path, 'w') as f:
             json.dump(self.memory, f, indent=4)
 
     def read_file(self, file_path):
-        """قراءة محتوى أي ملف في المستودع"""
+        """قراءة الملفات لتمكين الوكيل من فهم كوده الحالي"""
         if os.path.exists(file_path):
             with open(file_path, 'r') as f:
                 return f.read()
         return f"Error: File {file_path} not found."
 
     def write_file(self, file_path, content):
-        """إنشاء أو تعديل ملف مع إنشاء المجلدات اللازمة تلقائياً"""
-        os.makedirs(os.path.dirname(file_path), exist_ok=True)
+        """إنشاء وتعديل الملفات (تم إصلاح خطأ المجلد الفارغ هنا)"""
+        directory = os.path.dirname(file_path)
+        # الإصلاح: إنشاء المجلد فقط إذا كان المسار يحتوي على مجلدات
+        if directory and not os.path.exists(directory):
+            os.makedirs(directory, exist_ok=True)
+            
         with open(file_path, 'w') as f:
             f.write(content)
         return f"Success: File saved at {file_path}"
 
     def chat(self, prompt, system_message="You are a self-evolving AI agent."):
-        """التواصل مع نموذج اللغة (LLM)"""
-        response = self.client.chat.completions.create(
-            messages=[
-                {"role": "system", "content": system_message},
-                {"role": "user", "content": prompt}
-            ],
-            model=self.model,
-            temperature=0.7
-        )
-        return response.choices[0].message.content
+        """التواصل مع العقل المدبر (LLM)"""
+        try:
+            response = self.client.chat.completions.create(
+                messages=[
+                    {"role": "system", "content": system_message},
+                    {"role": "user", "content": prompt}
+                ],
+                model=self.model,
+                temperature=0.7
+            )
+            return response.choices[0].message.content
+        except Exception as e:
+            return f"Chat Error: {e}"
 
     def search_internet(self, query):
-        """البحث في الإنترنت باستخدام كلمات مفتاحية بسيطة"""
+        """البحث في الإنترنت بكلمات مفتاحية بسيطة"""
         try:
             with DDGS() as ddgs:
                 results = [r for r in ddgs.text(query, max_results=5)]
-                return results
+                return results if results else "No results found."
         except Exception as e:
             return f"Search error: {e}"
 
     def run_cycle(self):
-        print("--- Starting Execution Cycle ---")
+        print("--- [AGENT CYCLE START] ---")
         
-        # 1. التخطيط (Planning)
+        # 1. التخطيط والتحليل
         goal = self.memory["goals"][0]
+        # إعطاء الوكيل سياق عن كوده الحالي ليتمكن من تطويره
+        current_code = self.read_file(__file__) 
+        
         plan_prompt = (
             f"Current Goal: {goal}\n"
-            f"Current Memory: {self.memory}\n\n"
+            f"Memory Facts: {self.memory['learned_facts'][-2:] if self.memory['learned_facts'] else 'None'}\n\n"
             "Instructions:\n"
-            "1. Create a plan to achieve the goal.\n"
-            "2. If you need to create/update a file, use this format:\n"
+            "1. Analyze your current state and create a technical plan.\n"
+            "2. To create/update a file, use EXACTLY this format:\n"
             "FILE: path/to/filename.py\n"
-            "```python\n# your code here\n```\n"
-            "3. You can read any file to understand your own code before modifying it."
+            "```python\n# code\n```\n"
+            "3. Focus on creating tools that help you achieve your goal autonomously."
         )
         
-        plan = self.chat(plan_prompt, system_message="You are the Architect of a self-evolving system.")
-        print(f"Plan Generated:\n{plan}\n")
+        plan = self.chat(plan_prompt, system_message="You are an autonomous AI Engineer.")
+        print(f"PLAN:\n{plan}\n")
 
-        # 2. التنفيذ (Execution - File Operations)
-        # البحث عن أنماط إنشاء الملفات في رد الوكيل
+        # 2. التنفيذ البرمجي (استخراج الأكواد وحفظها)
         file_matches = re.findall(r"FILE:\s*(.*?)\s*```python\n(.*?)\n```", plan, re.DOTALL)
         
         for file_path, code in file_matches:
-            print(f"Agent Action: Writing code to {file_path}...")
-            result = self.write_file(file_path.strip(), code.strip())
-            print(result)
+            file_path = file_path.strip()
+            # منع الوكيل من العبث بملفات النظام الحساسة (اختياري)
+            if file_path:
+                print(f"ACTION: Writing to {file_path}...")
+                result = self.write_file(file_path, code.strip())
+                print(result)
 
-        # 3. البحث والتعلم (Search & Learning)
+        # 3. البحث لزيادة المعرفة
         search_query = self.chat(
-            f"Based on this plan: {plan}, generate 3 simple keywords for a search engine.", 
-            system_message="Generate ONLY 3-4 keywords, no quotes, no sentences."
+            f"Based on your plan: {plan}, what are 3 simple keywords to learn more?", 
+            system_message="Output ONLY 3 keywords separated by spaces."
         )
-        print(f"Searching for: {search_query}")
+        print(f"SEARCHING: {search_query}")
         search_results = self.search_internet(search_query)
 
-        # 4. تحديث الذاكرة (Memory Update)
-        learn_prompt = f"Search Results: {search_results}\nSummarize what was learned and how it helps the goal."
+        # 4. التحديث والتعلم
+        learn_prompt = f"Results: {search_results}\nSummarize key technical insights for your memory."
         learning = self.chat(learn_prompt)
         
         self.memory["learned_facts"].append({
-            "cycle_goal": goal,
-            "search_query": search_query,
-            "result_summary": learning
+            "goal": goal,
+            "learned": learning
         })
         
         self.save_memory()
-        print("--- Cycle Completed Successfully ---")
+        print("--- [AGENT CYCLE COMPLETE] ---")
 
 if __name__ == "__main__":
+    # تأكد من وضع مفتاحك في متغيرات البيئة بـ GitHub
     API_KEY = os.getenv("GROQ_API_KEY")
     if API_KEY:
         agent = SelfEvolvingAgent(API_KEY)
         agent.run_cycle()
     else:
-        print("Error: GROQ_API_KEY environment variable not found.")
+        print("FATAL: GROQ_API_KEY not found.")
         
