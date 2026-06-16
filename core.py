@@ -88,18 +88,22 @@ class SelfEvolvingAgent:
         # تجهيز سياق الذاكرة قصيرة المدى للموجه (Prompt)
         short_term_context = "\nRecent Actions (Short-Term Memory):\n" + "\n".join(self.short_term_memory) if self.short_term_memory else ""
 
-        plan_prompt = (
-            f"Current Goal: {goal}\n"
-            f"Memory Facts: {self.memory['learned_facts'][-2:] if self.memory['learned_facts'] else 'None'}\n"
-            f"Current Code Context: {current_code}\n"
-            f"{short_term_context}\n\n"
-            "Instructions:\n"
-            "1. Analyze your current state and create a technical plan.\n"
-            "2. To create/update a file, use EXACTLY this format:\n"
-            "FILE: path/to/filename.py\n"
-            "```python\n# code\n```\n"
-            "3. Focus on creating tools that help you achieve your goal autonomously."
-        )
+        # استخدام علامات اقتباس ثلاثية لتجنب أي تداخل مع علامات الاقتباس الداخلية
+        plan_prompt = f"""
+Current Goal: {goal}
+Memory Facts: {self.memory['learned_facts'][-2:] if self.memory['learned_facts'] else 'None'}
+Current Code Context: {current_code}
+{short_term_context}
+
+Instructions:
+1. Analyze your current state and create a technical plan.
+2. To create/update a file, use EXACTLY this format:
+FILE: path/to/filename.py
+```python
+# code
+```
+3. Focus on creating tools that help you achieve your goal autonomously.
+"""
         
         plan = self.chat(plan_prompt, system_message="You are an autonomous AI Engineer.")
         print(f"PLAN:\n{plan}\n")
