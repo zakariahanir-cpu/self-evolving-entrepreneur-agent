@@ -11,8 +11,8 @@ class SelfEvolvingAgent:
         self.memory_path = "memory/long_term_memory.json"
         self.model = "llama-3.3-70b-versatile"
         self.memory = self.load_memory()
-        # إضافة الذاكرة قصيرة المدى
-        self.short_term_memory = deque(maxlen=5) # تخزين آخر 5 تفاعلات
+        # إضافة الذاكرة قصيرة المدى لمنع التكرار (تخزن آخر 5 أحداث)
+        self.short_term_memory = deque(maxlen=5)
 
     def load_memory(self):
         """تحميل الذاكرة مع حماية ضد الأخطاء"""
@@ -21,7 +21,6 @@ class SelfEvolvingAgent:
             try:
                 with open(self.memory_path, 'r') as f:
                     data = json.load(f)
-                    # ضمان وجود الحقول الأساسية
                     if "learned_facts" not in data: data["learned_facts"] = []
                     if "goals" not in data: data["goals"] = ["Autonomous evolution and security research"]
                     return data
@@ -46,9 +45,8 @@ class SelfEvolvingAgent:
         return f"Error: File {file_path} not found."
 
     def write_file(self, file_path, content):
-        """إنشاء وتعديل الملفات (تم إصلاح خطأ المجلد الفارغ هنا)"""
+        """إنشاء وتعديل الملفات"""
         directory = os.path.dirname(file_path)
-        # الإصلاح: إنشاء المجلد فقط إذا كان المسار يحتوي على مجلدات
         if directory and not os.path.exists(directory):
             os.makedirs(directory, exist_ok=True)
             
@@ -72,7 +70,7 @@ class SelfEvolvingAgent:
             return f"Chat Error: {e}"
 
     def search_internet(self, query):
-        """البحث في الإنترنت بكلمات مفتاحية بسيطة"""
+        """البحث في الإنترنت"""
         try:
             with DDGS() as ddgs:
                 results = [r for r in ddgs.text(query, max_results=5)]
@@ -87,12 +85,12 @@ class SelfEvolvingAgent:
         goal = self.memory["goals"][0]
         current_code = self.read_file(__file__)
 
-        # إضافة الذاكرة قصيرة المدى إلى موجه التخطيط
+        # تجهيز سياق الذاكرة قصيرة المدى للموجه (Prompt)
         short_term_context = "\nRecent Actions (Short-Term Memory):\n" + "\n".join(self.short_term_memory) if self.short_term_memory else ""
 
         plan_prompt = (
             f"Current Goal: {goal}\n"
-            f"Memory Facts: {self.memory["learned_facts"][-2:] if self.memory["learned_facts"] else 'None'}\n"
+            f"Memory Facts: {self.memory['learned_facts'][-2:] if self.memory['learned_facts'] else 'None'}\n"
             f"Current Code Context: {current_code}\n"
             f"{short_term_context}\n\n"
             "Instructions:\n"
@@ -105,9 +103,9 @@ class SelfEvolvingAgent:
         
         plan = self.chat(plan_prompt, system_message="You are an autonomous AI Engineer.")
         print(f"PLAN:\n{plan}\n")
-        self.short_term_memory.append(f"Generated Plan: {plan[:100]}...") # إضافة جزء من الخطة للذاكرة قصيرة المدى
+        self.short_term_memory.append(f"Generated Plan: {plan[:100]}...")
 
-        # 2. التنفيذ البرمجي (استخراج الأكواد وحفظها)
+        # 2. التنفيذ البرمجي
         file_matches = re.findall(r"FILE:\s*(.*?)\s*```python\n(.*?)\n```", plan, re.DOTALL)
         
         for file_path, code in file_matches:
@@ -116,16 +114,16 @@ class SelfEvolvingAgent:
                 print(f"ACTION: Writing to {file_path}...")
                 result = self.write_file(file_path, code.strip())
                 print(result)
-                self.short_term_memory.append(f"Wrote to file: {file_path}") # إضافة كتابة الملف للذاكرة قصيرة المدى
+                self.short_term_memory.append(f"Wrote to file: {file_path}")
 
-        # 3. البحث لزيادة المعرفة
+        # 3. البحث
         search_query = self.chat(
             f"Based on your plan: {plan}, what are 3 simple keywords to learn more?", 
             system_message="Output ONLY 3 keywords separated by spaces."
         )
         print(f"SEARCHING: {search_query}")
         search_results = self.search_internet(search_query)
-        self.short_term_memory.append(f"Searched for: {search_query}") # إضافة البحث للذاكرة قصيرة المدى
+        self.short_term_memory.append(f"Searched for: {search_query}")
 
         # 4. التحديث والتعلم
         learn_prompt = f"Results: {search_results}\nSummarize key technical insights for your memory."
@@ -137,7 +135,7 @@ class SelfEvolvingAgent:
         })
         
         self.save_memory()
-        self.short_term_memory.append(f"Learned: {learning[:100]}...") # إضافة التعلم للذاكرة قصيرة المدى
+        self.short_term_memory.append(f"Learned: {learning[:100]}...")
         print("--- [AGENT CYCLE COMPLETE] ---")
 
 
