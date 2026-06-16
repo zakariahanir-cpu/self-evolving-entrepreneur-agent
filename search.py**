@@ -1,0 +1,12 @@
+from googlesearch import search
+
+def advanced_search(query):
+    results = []
+    for result in search(query, num_results=10):
+        results.append(result)
+    return results
+
+# Example usage
+query = "hacking tutorials"
+results = advanced_search(query)
+print(results)

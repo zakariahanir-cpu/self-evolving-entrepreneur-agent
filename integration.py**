@@ -1,0 +1,10 @@
+import pymongo
+
+def connect_to_database():
+    client = pymongo.MongoClient("mongodb://localhost:27017/")
+    db = client["database"]
+    return db
+
+# Example usage
+db = connect_to_database()
+print(db)

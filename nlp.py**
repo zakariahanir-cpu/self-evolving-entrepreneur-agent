@@ -1,0 +1,12 @@
+import nltk
+from nltk.tokenize import word_tokenize
+
+def process_text(text):
+    tokens = word_tokenize(text)
+    # Perform sentiment analysis, entity recognition, etc.
+    return tokens
+
+# Example usage
+text = "This is an example sentence."
+tokens = process_text(text)
+print(tokens)
