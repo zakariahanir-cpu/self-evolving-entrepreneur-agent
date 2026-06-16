@@ -4,7 +4,7 @@ from groq import Groq
 class SelfImprovement:
     def __init__(self, api_key):
         self.client = Groq(api_key=api_key)
-        self.model = "llama3-70b-8192"
+        self.model = "llama-3.3-70b-versatile"
 
     def analyze_and_improve(self, file_path):
         with open(file_path, 'r') as f:
