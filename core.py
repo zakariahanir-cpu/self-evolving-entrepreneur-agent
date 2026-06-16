@@ -7,21 +7,32 @@ class SelfEvolvingAgent:
     def __init__(self, api_key):
         self.client = Groq(api_key=api_key)
         self.memory_path = "memory/long_term_memory.json"
-        self.skills_path = "skills/"
         self.model = "llama-3.3-70b-versatile"
         self.memory = self.load_memory()
 
     def load_memory(self):
-        # التأكد من وجود مجلد الذاكرة
         os.makedirs(os.path.dirname(self.memory_path), exist_ok=True)
         if os.path.exists(self.memory_path):
             with open(self.memory_path, 'r') as f:
                 return json.load(f)
-        return {"learned_facts": [], "goals": ["Become a digital entrepreneur", "Operate under a digital pseudonym"], "version": 1.1}
+        return {"learned_facts": [], "goals": [], "version": 1.2}
 
     def save_memory(self):
         with open(self.memory_path, 'w') as f:
             json.dump(self.memory, f, indent=4)
+
+    # --- أدوات التعامل مع الملفات الجديدة ---
+    def read_file(self, file_path):
+        if os.path.exists(file_path):
+            with open(file_path, 'r') as f:
+                return f.read()
+        return "Error: File not found."
+
+    def write_file(self, file_path, content):
+        os.makedirs(os.path.dirname(file_path), exist_ok=True)
+        with open(file_path, 'w') as f:
+            f.write(content)
+        return f"Success: File saved at {file_path}"
 
     def chat(self, prompt, system_message="You are a self-evolving AI agent."):
         response = self.client.chat.completions.create(
@@ -44,37 +55,36 @@ class SelfEvolvingAgent:
         
         # 1. Planning
         goal = self.memory["goals"][0]
-        plan_prompt = f"Current Goal: {goal}\nMemory: {self.memory}\nCreate a step-by-step plan to achieve this goal using internet search."
-        plan = self.chat(plan_prompt, system_message="You are the Brain of a self-evolving agent. Plan your next move.")
+        # إخبار الوكيل بأنه يمتلك أدوات للملفات الآن
+        plan_prompt = (f"Current Goal: {goal}\nMemory: {self.memory}\n"
+                       "You can now read/write files and search the internet. "
+                       "Create a plan. If you need to fix a bug or add a skill, specify the file path and the code.")
+        
+        plan = self.chat(plan_prompt, system_message="You are the Brain of a self-evolving agent.")
         print(f"Plan: {plan}")
 
-        # 2. Execution (Search)
-        search_query = self.chat(f"Based on this plan: {plan}, what is the best search query to learn something new?", system_message="Generate only the search query.")
+        # 2. Execution (هنا يقرر الوكيل هل يبحث أم يعدل ملفات)
+        if "write_file" in plan.lower():
+            # منطق بسيط لجعل الوكيل يستخرج الكود ويحفظه (يمكن تطويره لاحقاً)
+            print("Agent is attempting to modify/create a file...")
+            # هنا يمكن إضافة منطق لاستخراج المسار والكود من 'plan' باستخدام chat ثانية
+        
+        search_query = self.chat(f"Based on this plan: {plan}, generate 3 simple search keywords.", 
+                                 system_message="Generate ONLY keywords.")
         print(f"Searching for: {search_query}")
         search_results = self.search_internet(search_query)
 
-        # 3. Learning & Reflection
-        learn_prompt = f"Search Results: {search_results}\nWhat did you learn from this? Summarize key facts and how you can improve yourself."
-        learning = self.chat(learn_prompt)
-        print(f"Learned: {learning}")
-
-        # 4. Update Memory (تم تصحيح المسافات هنا)
+        # 3. Learning & Update Memory
         if "learned_facts" not in self.memory:
             self.memory["learned_facts"] = []
         
-        self.memory["learned_facts"].append({
-            "query": search_query, 
-            "info": learning
-        })
-
+        self.memory["learned_facts"].append({"query": search_query, "info": "Processed cycle"})
         self.save_memory()
-        print("Cycle completed and memory updated.")
+        print("Cycle completed.")
 
 if __name__ == "__main__":
     API_KEY = os.getenv("GROQ_API_KEY")
     if API_KEY:
         agent = SelfEvolvingAgent(API_KEY)
         agent.run_cycle()
-    else:
-        print("GROQ_API_KEY not found.")
-            
+        
