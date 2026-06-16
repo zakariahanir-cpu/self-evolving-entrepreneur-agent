@@ -1,17 +1,19 @@
-import pathlib
+import os
 
 def read_file(file_path):
-    """Read the contents of a file."""
-    file = pathlib.Path(file_path)
-    return file.read_text()
+    with open(file_path, 'r') as f:
+        return f.read()
 
 def write_file(file_path, content):
-    """Write content to a file."""
-    file = pathlib.Path(file_path)
-    file.write_text(content)
+    with open(file_path, 'w') as f:
+        f.write(content)
 
-def create_file(file_path, content):
-    """Create a new file with the given content."""
-    file = pathlib.Path(file_path)
-    file.parent.mkdir(parents=True, exist_ok=True)
-    file.write_text(content)
+def create_directory(dir_path):
+    os.makedirs(dir_path, exist_ok=True)
+
+def delete_directory(dir_path):
+    import shutil
+    shutil.rmtree(dir_path)
+
+def get_file_listing(dir_path):
+    return os.listdir(dir_path)

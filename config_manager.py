@@ -1,17 +1,14 @@
 import json
 
-def read_config(path):
-    with open(path, 'r') as file:
-        return json.load(file)
+def read_config(file_path):
+    with open(file_path, 'r') as f:
+        return json.load(f)
 
-def write_config(path, config):
-    with open(path, 'w') as file:
-        json.dump(config, file)
+def write_config(file_path, config):
+    with open(file_path, 'w') as f:
+        json.dump(config, f, indent=4)
 
-def create_config(path, config):
-    with open(path, 'w') as file:
-        json.dump(config, file)
-
-def modify_config(path, new_config):
-    with open(path, 'w') as file:
-        json.dump(new_config, file)
+def update_config(file_path, key, value):
+    config = read_config(file_path)
+    config[key] = value
+    write_config(file_path, config)
