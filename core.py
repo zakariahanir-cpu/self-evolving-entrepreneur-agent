@@ -12,6 +12,8 @@ class SelfEvolvingAgent:
         self.memory = self.load_memory()
 
     def load_memory(self):
+        # التأكد من وجود مجلد الذاكرة
+        os.makedirs(os.path.dirname(self.memory_path), exist_ok=True)
         if os.path.exists(self.memory_path):
             with open(self.memory_path, 'r') as f:
                 return json.load(f)
@@ -56,16 +58,23 @@ class SelfEvolvingAgent:
         learning = self.chat(learn_prompt)
         print(f"Learned: {learning}")
 
-        # 4. Update Memory
-        self.memory["learned_facts"].append({"query": search_query, "info": learning})
+        # 4. Update Memory (تم تصحيح المسافات هنا)
+        if "learned_facts" not in self.memory:
+            self.memory["learned_facts"] = []
+        
+        self.memory["learned_facts"].append({
+            "query": search_query, 
+            "info": learning
+        })
+
         self.save_memory()
         print("Cycle completed and memory updated.")
 
 if __name__ == "__main__":
-    # Note: API key should be provided via environment variable
     API_KEY = os.getenv("GROQ_API_KEY")
     if API_KEY:
         agent = SelfEvolvingAgent(API_KEY)
         agent.run_cycle()
     else:
         print("GROQ_API_KEY not found.")
+            
