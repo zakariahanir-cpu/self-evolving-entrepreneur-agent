@@ -5,7 +5,6 @@ on:
     - cron: '0 */6 * * *'
   workflow_dispatch:
 
-# إضافة الصلاحيات بشكل صريح هنا
 permissions:
   contents: write
 
@@ -17,7 +16,6 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
         with:
-          # استخدام التوكن الافتراضي لضمان صلاحية الـ Push
           token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Set up Python
@@ -27,7 +25,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          pip install groq duckduckgo-search
+          pip install groq ddgs  # تم التحديث هنا لاستخدام ddgs
 
       - name: Run Agent Cycle
         env:
@@ -39,8 +37,7 @@ jobs:
           git config --local user.email "agent@self-evolving.ai"
           git config --local user.name "Self-Evolving Agent"
           git add .
-          git commit -m "Agent Auto-Update: Business Evolution" || echo "No changes to commit"
-          # استخدام رابط يحتوي على التوكن لضمان تجاوز مشكلة الأذونات
+          git commit -m "Agent Auto-Update: Fix Search and Evolve" || echo "No changes to commit"
           git push origin main
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
