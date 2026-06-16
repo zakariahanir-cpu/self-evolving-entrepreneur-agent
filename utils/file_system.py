@@ -1,16 +1,18 @@
 import os
 
-def create_file(path, content):
-    with open(path, 'w') as f:
-        f.write(content)
-
 def read_file(path):
-    with open(path, 'r') as f:
-        return f.read()
+    """Read the contents of a file."""
+    with open(path, 'r') as file:
+        return file.read()
 
-def modify_file(path, content):
-    with open(path, 'w') as f:
-        f.write(content)
+def write_file(path, content):
+    """Write content to a file."""
+    with open(path, 'w') as file:
+        file.write(content)
 
-def delete_file(path):
-    os.remove(path)
+def modify_file(path, new_content):
+    """Modify the contents of a file."""
+    with open(path, 'r+') as file:
+        file.seek(0)
+        file.write(new_content)
+        file.truncate()
