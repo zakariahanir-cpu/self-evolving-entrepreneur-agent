@@ -1,18 +1,26 @@
 import os
 
-def read_file(path):
-    """Read the contents of a file."""
-    with open(path, 'r') as file:
-        return file.read()
+def read_file(file_path):
+    try:
+        with open(file_path, 'r') as f:
+            return f.read()
+    except FileNotFoundError:
+        return f"Error: File {file_path} not found."
+    except Exception as e:
+        return f"Error: {e}"
 
-def write_file(path, content):
-    """Write content to a file."""
-    with open(path, 'w') as file:
-        file.write(content)
+def write_file(file_path, content):
+    try:
+        with open(file_path, 'w') as f:
+            f.write(content)
+        return f"Success: File saved at {file_path}"
+    except Exception as e:
+        return f"Error: {e}"
 
-def modify_file(path, new_content):
-    """Modify the contents of a file."""
-    with open(path, 'r+') as file:
-        file.seek(0)
-        file.write(new_content)
-        file.truncate()
+def create_file(file_path, content):
+    try:
+        with open(file_path, 'w') as f:
+            f.write(content)
+        return f"Success: File created at {file_path}"
+    except Exception as e:
+        return f"Error: {e}"
