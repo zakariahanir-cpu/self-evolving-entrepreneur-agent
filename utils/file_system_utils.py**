@@ -1,0 +1,22 @@
+import os
+import shutil
+
+def create_directory(path):
+    try:
+        os.makedirs(path, exist_ok=True)
+        return f"Directory created at {path}"
+    except Exception as e:
+        return f"Error creating directory: {e}"
+
+def delete_directory(path):
+    try:
+        shutil.rmtree(path)
+        return f"Directory deleted at {path}"
+    except Exception as e:
+        return f"Error deleting directory: {e}"
+
+def list_files(path):
+    try:
+        return os.listdir(path)
+    except Exception as e:
+        return f"Error listing files: {e}"

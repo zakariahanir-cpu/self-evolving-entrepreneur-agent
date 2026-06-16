@@ -1,0 +1,17 @@
+from utils.file_system_utils import create_directory, delete_directory, list_files
+from utils.file_operations import read_file, write_file
+
+def main():
+    # Example usage
+    directory_path = "example_directory"
+    file_path = "example_file.txt"
+    content = "Hello, World!"
+
+    create_directory(directory_path)
+    write_file(os.path.join(directory_path, file_path), content)
+    print(read_file(os.path.join(directory_path, file_path)))
+    list_files(directory_path)
+    delete_directory(directory_path)
+
+if __name__ == "__main__":
+    main()
