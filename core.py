@@ -1,6 +1,7 @@
 import os
 import json
 import re
+from collections import deque
 from groq import Groq
 from duckduckgo_search import DDGS
 
@@ -10,6 +11,8 @@ class SelfEvolvingAgent:
         self.memory_path = "memory/long_term_memory.json"
         self.model = "llama-3.3-70b-versatile"
         self.memory = self.load_memory()
+        # إضافة الذاكرة قصيرة المدى
+        self.short_term_memory = deque(maxlen=5) # تخزين آخر 5 تفاعلات
 
     def load_memory(self):
         """تحميل الذاكرة مع حماية ضد الأخطاء"""
@@ -82,12 +85,16 @@ class SelfEvolvingAgent:
         
         # 1. التخطيط والتحليل
         goal = self.memory["goals"][0]
-        # إعطاء الوكيل سياق عن كوده الحالي ليتمكن من تطويره
-        current_code = self.read_file(__file__) 
-        
+        current_code = self.read_file(__file__)
+
+        # إضافة الذاكرة قصيرة المدى إلى موجه التخطيط
+        short_term_context = "\nRecent Actions (Short-Term Memory):\n" + "\n".join(self.short_term_memory) if self.short_term_memory else ""
+
         plan_prompt = (
             f"Current Goal: {goal}\n"
-            f"Memory Facts: {self.memory['learned_facts'][-2:] if self.memory['learned_facts'] else 'None'}\n\n"
+            f"Memory Facts: {self.memory["learned_facts"][-2:] if self.memory["learned_facts"] else 'None'}\n"
+            f"Current Code Context: {current_code}\n"
+            f"{short_term_context}\n\n"
             "Instructions:\n"
             "1. Analyze your current state and create a technical plan.\n"
             "2. To create/update a file, use EXACTLY this format:\n"
@@ -98,17 +105,18 @@ class SelfEvolvingAgent:
         
         plan = self.chat(plan_prompt, system_message="You are an autonomous AI Engineer.")
         print(f"PLAN:\n{plan}\n")
+        self.short_term_memory.append(f"Generated Plan: {plan[:100]}...") # إضافة جزء من الخطة للذاكرة قصيرة المدى
 
         # 2. التنفيذ البرمجي (استخراج الأكواد وحفظها)
         file_matches = re.findall(r"FILE:\s*(.*?)\s*```python\n(.*?)\n```", plan, re.DOTALL)
         
         for file_path, code in file_matches:
             file_path = file_path.strip()
-            # منع الوكيل من العبث بملفات النظام الحساسة (اختياري)
             if file_path:
                 print(f"ACTION: Writing to {file_path}...")
                 result = self.write_file(file_path, code.strip())
                 print(result)
+                self.short_term_memory.append(f"Wrote to file: {file_path}") # إضافة كتابة الملف للذاكرة قصيرة المدى
 
         # 3. البحث لزيادة المعرفة
         search_query = self.chat(
@@ -117,6 +125,7 @@ class SelfEvolvingAgent:
         )
         print(f"SEARCHING: {search_query}")
         search_results = self.search_internet(search_query)
+        self.short_term_memory.append(f"Searched for: {search_query}") # إضافة البحث للذاكرة قصيرة المدى
 
         # 4. التحديث والتعلم
         learn_prompt = f"Results: {search_results}\nSummarize key technical insights for your memory."
@@ -128,10 +137,11 @@ class SelfEvolvingAgent:
         })
         
         self.save_memory()
+        self.short_term_memory.append(f"Learned: {learning[:100]}...") # إضافة التعلم للذاكرة قصيرة المدى
         print("--- [AGENT CYCLE COMPLETE] ---")
 
+
 if __name__ == "__main__":
-    # تأكد من وضع مفتاحك في متغيرات البيئة بـ GitHub
     API_KEY = os.getenv("GROQ_API_KEY")
     if API_KEY:
         agent = SelfEvolvingAgent(API_KEY)
