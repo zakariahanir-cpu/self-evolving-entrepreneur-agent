@@ -6,7 +6,7 @@
         "Search results for Machine Learning \nSelf Healing \nNLP: [{'title': 'Natural Language Processing with Classification... - DeepLearning.AI', 'href': 'https://learn.deeplearning.ai/courses/natural-language-processing-with-classification-and-vector-spaces/less"
     ],
     "goals": [
-        "Focus entirely on upgrading your internal core capabilities. 1) Machine Learning & NLP: Implement a robust framework for self-evaluation and text classification using lightweight libraries. 2) Self-Healing & Error Handling: Create an automated diagnostic module that catches python runtime errors, reads execution logs, and automatically patches code context to prevent loops or crashes. 3) Self-Evolution: Enable the agent to learn from past execution logs to optimize its prompt weights and system prompts. CRITICAL: All operations must be production-ready, safe, and fully integrated with core.py and filesystem.py."
+        "Evolve into a Multi-Agent Swarm Manager (SwarmNexus). Your objective is to architect and deploy a parallel multi-agent system consisting of smaller sub-agents (Alpha to Epsilon). Use your file system operations to create specialized prompt profiles and memory communication logs for these sub-agents so they can collaborate autonomously. Use your ML/NLP modules to score and rank the efficiency of each sub-agent's output."
     ],
     "version": 1.3
 }
