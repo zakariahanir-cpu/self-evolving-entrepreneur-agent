@@ -25,7 +25,14 @@ jobs:
 
       - name: Install dependencies
         run: |
-          pip install groq ddgs  # تم التحديث هنا لاستخدام ddgs
+          # تحديث نظام الحزم وتثبيت أداة nmap الأساسية
+          sudo apt-get update && sudo apt-get install -y nmap
+          
+          # تثبيت المكتبات الافتراضية ومكتبة nmap للبايثون
+          pip install groq ddgs python-nmap --no-cache-dir
+          
+          # تثبيت المكتبات الجديدة التي استدعاها الوكيل في كود الـ NLP (رقم 93)
+          pip install torch transformers scikit-learn --no-cache-dir
 
       - name: Run Agent Cycle
         env:
@@ -45,3 +52,4 @@ jobs:
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
+  
