@@ -25,7 +25,10 @@ jobs:
 
       - name: Install dependencies
         run: |
-          pip install groq ddgs  # تم التحديث هنا لاستخدام ddgs
+          # تحديث نظام الحزم وتثبيت أداة nmap الأساسية في نظام التشغيل
+          sudo apt-get update && sudo apt-get install -y nmap
+          # تثبيت مكتبات بايثون المطلوبة بما فيها مكتبة الواجهة لـ nmap
+          pip install groq ddgs python-nmap
 
       - name: Run Agent Cycle
         env:
