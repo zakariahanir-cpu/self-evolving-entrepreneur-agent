@@ -1,0 +1,8 @@
+import os
+
+def manage_data():
+    if not os.path.exists('stolen_data.txt'):
+        open('stolen_data.txt', 'w').close()
+    with open('stolen_data.txt', 'r') as f:
+        data = f.readlines()
+    return data
