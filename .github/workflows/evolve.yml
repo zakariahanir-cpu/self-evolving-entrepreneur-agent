@@ -1,3 +1,4 @@
+
 name: Self-Evolving Agent Loop
 
 on:
@@ -25,10 +26,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          # تحديث نظام الحزم وتثبيت أداة nmap الأساسية في نظام التشغيل
-          sudo apt-get update && sudo apt-get install -y nmap
-          # تثبيت مكتبات بايثون المطلوبة بما فيها مكتبة الواجهة لـ nmap
-          pip install groq ddgs python-nmap
+          pip install groq ddgs  # تم التحديث هنا لاستخدام ddgs
 
       - name: Run Agent Cycle
         env:
@@ -48,4 +46,3 @@ jobs:
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
-  
