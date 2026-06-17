@@ -25,14 +25,16 @@ jobs:
 
       - name: Install dependencies
         run: |
-          # تحديث نظام الحزم وتثبيت أداة nmap الأساسية
           sudo apt-get update && sudo apt-get install -y nmap
           
-          # تثبيت المكتبات الافتراضية ومكتبة nmap للبايثون
+          # تثبيت المكتبات الأساسية للوكيل والبحث
           pip install groq ddgs python-nmap --no-cache-dir
           
-          # تثبيت المكتبات الجديدة التي استدعاها الوكيل في كود الـ NLP (رقم 93)
+          # تثبيت مكتبات الذكاء الاصطناعي والـ NLP التي طلبها سابقاً
           pip install torch transformers scikit-learn --no-cache-dir
+          
+          # حزمة المكتبات الشاملة لتحليل البيانات والملفات لمنع أي خطأ مستقبلي (تم إضافة pandas هنا)
+          pip install pandas numpy openpyxl requests cffi --no-cache-dir
 
       - name: Run Agent Cycle
         env:
